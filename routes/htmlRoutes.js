@@ -14,7 +14,7 @@ app.get("*", function (req, res) {
 })
 
 app.get("/api/notes", function (req, res) {
-    return res.sendFile(path.json(__dirname, "../db/db.json"));
+    return res.sendFile(path.json(__dirname, "../..db/db.json"));
 });
 
 };
