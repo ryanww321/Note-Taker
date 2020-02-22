@@ -1,61 +1,53 @@
-const fs = require("fs");
+const fs = require("fs")
+const util = require("util");
 
-module.exports = function(app) {
+const readFileAsync = util.promisify(fs.readFile)
+const writeFileAsync = util.promisify(fs.writeFile)
 
-// array for the notes being input
-let notesData = [];
+module.exports = function (app) {
 
-app.get("/api/notes", function (err, res) {
-    try {
-        notesData = fs.readFileSync("../../db/db.json", "utf8");
-        notesData = JSON.parse(notesData);
-    }
-    catch (err) {
-        console.log(err);
-    }
-    res.json(notesData);
-});
+    // array for the notes being input
+    let notesArray = require("../db/db.json");
 
-// writes the note to the json file
-app.post("/api/notes", function (req, res) {
-    try {
-        notesData = fs.readFileSync("../../db/db.json", "utf8");
-        console.log(notesData);
+    app.get("/api/notes", function (err, res) {
 
-        notesData = JSON.parse(notesData);
-        req.body.id = notesData.length;
-        notesData.push(req.body);
-        notesData.JSON.stringify(notesData);
+        res.json(notesArray);
+    });
 
-        fs.writeFile("../../db/db.json", notesData, "utf8", function (err) {
-            if (err) throw err;
+    // writes the note to the json file
+    app.post("/api/notes", function (req, res) {
+
+        console.log("NOTESDATA:", req.body);
+
+        notesArray.push(JSON.stringify(req.body));
+
+        fs.writeFile("db/db.json", notesArray, function (err) {
+            if (err) {
+                console.log(err)
+            }
+            console.log("Written!")
+
+
         });
+    });
 
-        res.json(JSON.parse(notesData));
+    // deletes a note
+    app.delete("/api/notes/:id", function (req, res) {
+        try {
 
-    } catch (err) {
-        throw err;
-        console.log(err);
-    }
-});
+            notesArray = notesArray.filter(function (note) {
+                return note.id != req.params.id;
+            });
 
-// deletes a note
-app.delete("/api/notes/:id", function (req, res) {
-    try {
-        notesData = fs.readFileSync("../../db/db.json", "utf8");
-        notesData = JSON.parse(notesData);
-        notesData = notesData.filter(function (note) {
-            return note.id != req.params.id;
-        });
+            fs.writeFile("db/db.json", JSON.stringify(notesArray), "utf8", function (err) {
+                if (err) throw err;
+            });
 
-        notesData = JSON.stringify(notesData);
-        fs.writeFile("../../db/db.json", notesData, "utf8", function (err) {
-            if (err) throw err;
-        });
+            res.json({ ok: true });
 
-    } catch (err) {
-        throw err;
-        console.log(err);
-    }
-});
+        } catch (err) {
+            throw err;
+            console.log(err);
+        }
+    });
 };
