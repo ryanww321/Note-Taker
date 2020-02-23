@@ -26,28 +26,24 @@ module.exports = function (app) {
                 console.log(err)
             }
             console.log("Written!")
-
-
         });
     });
 
     // deletes a note
     app.delete("/api/notes/:id", function (req, res) {
-        try {
+        console.log(notesArray.length);
 
-            notesArray = notesArray.filter(function (note) {
-                return note.id != req.params.id;
-            });
+        var loc = 0;
 
-            fs.writeFile("db/db.json", JSON.stringify(notesArray), "utf8", function (err) {
-                if (err) throw err;
-            });
-
-            res.json({ ok: true });
-
-        } catch (err) {
-            throw err;
-            console.log(err);
+        for (let i = 0; i < notesArray.length; i++) {
+            if (notesArray[i].id == req.params.id) {
+                console.log(notes[i]);
+                loc = i;
+                console.log(loc);
+            }
         }
+        notesArray.splice(loc, 1);
+
+        fs.writeFile("../db/db.json", JSON.stringify(notesArray))
     });
 };
