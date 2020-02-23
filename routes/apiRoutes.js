@@ -44,6 +44,10 @@ module.exports = function (app) {
         }
         notesArray.splice(loc, 1);
 
-        fs.writeFile("../db/db.json", JSON.stringify(notesArray))
+        fs.writeFile("db/db.json", JSON.stringify(notesArray), function (err){
+            if (err) {
+                console.log(err)
+            }
+        })
     });
 };
